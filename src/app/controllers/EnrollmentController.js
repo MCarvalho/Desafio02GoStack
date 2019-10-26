@@ -1,10 +1,11 @@
 import * as Yup from 'yup';
-import { format, parseISO, addMonths } from 'date-fns';
-import pt from 'date-fns/locale/pt';
+import { parseISO, addMonths } from 'date-fns';
 import Enrollment from '../models/Enrollment';
 import Student from '../models/Student';
 import Plan from '../models/Plan';
-import Mail from '../../lib/Mail';
+
+import EnrollmentMail from '../jobs/EnrollmentMail';
+import Queue from '../../lib/Queue';
 
 class EnrollmentController {
   async store(req, res) {
@@ -43,18 +44,11 @@ class EnrollmentController {
     const endDate = addMonths(parseISO(start_date), 3);
     const totalPrice = plan.price * plan.duration;
 
-    Mail.sendMail({
-      to: `${student.name} <${student.email}>`,
-      subject: 'Matricula GYMPOINT',
-      template: 'enrollment',
-      context: {
-        student: student.name,
-        plan: plan.title,
-        price: totalPrice,
-        date: format(endDate, "'dia' dd 'de' MMMM'", {
-          locale: pt,
-        }),
-      },
+    await Queue.add(EnrollmentMail.key, {
+      student,
+      plan,
+      endDate,
+      totalPrice,
     });
 
     return res.json(enrollment);
