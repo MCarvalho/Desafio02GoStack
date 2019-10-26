@@ -1,7 +1,10 @@
 import * as Yup from 'yup';
+import { format, parseISO, addMonths } from 'date-fns';
+import pt from 'date-fns/locale/pt';
 import Enrollment from '../models/Enrollment';
 import Student from '../models/Student';
 import Plan from '../models/Plan';
+import Mail from '../../lib/Mail';
 
 class EnrollmentController {
   async store(req, res) {
@@ -17,9 +20,9 @@ class EnrollmentController {
 
     const { student_id, plan_id, start_date } = req.body;
 
-    const studentExists = await Student.findByPk(student_id);
+    const student = await Student.findByPk(student_id);
 
-    if (!studentExists) {
+    if (!student) {
       return res.status(400).json({ error: 'Student not exists' });
     }
 
@@ -35,6 +38,23 @@ class EnrollmentController {
       price_month: plan.price,
       start_date,
       duration: plan.duration,
+    });
+
+    const endDate = addMonths(parseISO(start_date), 3);
+    const totalPrice = plan.price * plan.duration;
+
+    Mail.sendMail({
+      to: `${student.name} <${student.email}>`,
+      subject: 'Matricula GYMPOINT',
+      template: 'enrollment',
+      context: {
+        student: student.name,
+        plan: plan.title,
+        price: totalPrice,
+        date: format(endDate, "'dia' dd 'de' MMMM'", {
+          locale: pt,
+        }),
+      },
     });
 
     return res.json(enrollment);
