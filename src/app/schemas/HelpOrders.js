@@ -2,8 +2,12 @@ import mongoose from 'mongoose';
 
 const HelpOrderSchema = new mongoose.Schema(
   {
-    student: {
+    student_id: {
       type: Number,
+      required: true,
+    },
+    student_name: {
+      type: String,
       required: true,
     },
     question: {
@@ -13,7 +17,6 @@ const HelpOrderSchema = new mongoose.Schema(
     answer: {
       type: String,
       required: false,
-      default: null,
     },
     answer_at: {
       type: Date,

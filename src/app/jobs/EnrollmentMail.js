@@ -16,6 +16,7 @@ class EnrollmentMail {
       template: 'enrollment',
       context: {
         student: student.name,
+        student_id: student.id,
         plan: plan.title,
         price: totalPrice,
         date: format(parseISO(endDate), "'dia' dd 'de' MMMM'", {

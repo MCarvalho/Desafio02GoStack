@@ -27,7 +27,11 @@ class AnswerController {
       return res.status(400).json({ error: 'Help-Orders not found' });
     }
 
-    const student = await Student.findByPk(helporder.student);
+    const student = await Student.findByPk(helporder.student_id);
+
+    if (!student) {
+      return res.status(200).json({ warn: 'Student deleted' });
+    }
 
     await Queue.add(AnswerMail.key, {
       student,
@@ -38,16 +42,7 @@ class AnswerController {
   }
 
   async index(req, res) {
-    const { id } = req.params;
-
-    const studentExists = await Student.findByPk(id);
-
-    if (!studentExists) {
-      return res.status(400).json({ error: 'Student not exists' });
-    }
-
     const helporders = await HelpOrders.find({
-      student: id,
       answer: null,
     }).sort({ createdAt: 'desc' });
 

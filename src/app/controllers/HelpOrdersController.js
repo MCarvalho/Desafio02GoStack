@@ -20,8 +20,11 @@ class HelpOrdersController {
       return res.status(400).json({ error: 'Student not exists' });
     }
 
+    const { name } = studentExists;
+
     const help = await HelpOrders.create({
-      student: id,
+      student_id: id,
+      student_name: name,
       question,
     });
 
@@ -38,7 +41,7 @@ class HelpOrdersController {
     }
 
     const helporders = await HelpOrders.find({
-      student: id,
+      student_id: id,
     }).sort({ createdAt: 'desc' });
 
     return res.json(helporders);

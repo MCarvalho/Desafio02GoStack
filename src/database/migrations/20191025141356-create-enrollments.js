@@ -13,6 +13,7 @@ module.exports = {
         onUpdate: 'CASCADE',
         onDelete: 'SET NULL',
         allowNull: true,
+        unique: true,
       },
       plan_id: {
         type: Sequelize.INTEGER,

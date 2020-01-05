@@ -1,4 +1,5 @@
 import * as Yup from 'yup';
+import { Op } from 'sequelize';
 import Student from '../models/Student';
 
 class StudentController {
@@ -80,6 +81,45 @@ class StudentController {
       weight,
       height,
     });
+  }
+
+  async index(req, res) {
+    const { name } = req.query;
+
+    const students = await Student.findAll({
+      attributes: ['id', 'name', 'email', 'age', 'weight', 'height'],
+      where: {
+        name: {
+          [Op.iLike]: `%${name}%`,
+        },
+      },
+    });
+
+    return res.json(students);
+  }
+
+  async delete(req, res) {
+    const { id } = req.params;
+
+    const student = await Student.findByPk(id);
+
+    const response = student
+      ? student.destroy()
+      : { error: 'Student not exists' };
+
+    return res.json(response);
+  }
+
+  async signInStudent(req, res) {
+    const { id } = req.params;
+
+    const student = await Student.findByPk(id, {
+      attributes: ['id', 'name', 'email', 'age', 'weight', 'height'],
+    });
+
+    if (!student) return res.status(400).json({ error: 'Student not exists' });
+
+    return res.status(200).json(student);
   }
 }
 

@@ -33,6 +33,14 @@ class EnrollmentController {
       return res.status(400).json({ error: 'Plan not exists' });
     }
 
+    const enrollmentExists = await Enrollment.findOne({
+      where: { student_id },
+    });
+
+    if (enrollmentExists) {
+      return res.status(400).json({ error: 'Enrollment already existir' });
+    }
+
     const enrollment = await Enrollment.create({
       student_id,
       plan_id,
@@ -56,15 +64,15 @@ class EnrollmentController {
 
   async index(req, res) {
     const enrollments = await Enrollment.findAll({
-      attributes: ['id', 'start_date', 'end_date', 'price'],
+      attributes: ['id', 'start_date', 'end_date', 'price', 'active'],
       include: [
         {
           model: Student,
-          attributes: ['name', 'email'],
+          attributes: ['id', 'name', 'email'],
         },
         {
           model: Plan,
-          attributes: ['title', 'duration'],
+          attributes: ['id', 'title', 'duration', 'price'],
         },
       ],
     });
